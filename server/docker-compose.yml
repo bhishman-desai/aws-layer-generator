@@ -1,0 +1,9 @@
+services:
+  app:
+    build: .
+    container_name: aws-layer-generator
+    ports:
+      - 9000:9000
+    volumes:
+      - .:/app
+
