@@ -1,4 +1,4 @@
-FROM node:lts-iron
+FROM test
 LABEL authors="Bhishman Desai"
 
 # Create app directory

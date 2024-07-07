@@ -30,7 +30,6 @@ const LayerGenerator = () => {
                         onChange={(e) => setPythonRuntime(e.target.value)}
                         className="block w-full p-2 border border-gray-300 rounded"
                     >
-                        <option value="python3.2">Python 3.2</option>
                         <option value="python3.8">Python 3.8</option>
                         <option value="python3.9">Python 3.9</option>
                         <option value="python3.10">Python 3.10</option>

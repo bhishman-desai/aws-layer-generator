@@ -18,14 +18,9 @@ app.post('/generate-zip', async (req, res) => {
     const packagesDir = `${envDir}/lib/python${runtime}/site-packages`;
 
     try {
-        /* Check if the specified Python version is installed */
-        const pythonInstalled = await commandExists(`python${runtime}`);
-        if (!pythonInstalled) {
-            await installPython(runtime);
-        }
 
         /* Step 1: Create a virtual environment */
-        exec(`python${runtime} -m venv ${envDir}`, (err) => {
+        exec(`${runtime} -m venv ${envDir}`, (err) => {
             if (err) {
                 console.error(err);
                 return res.status(500).send('Error creating virtual environment');
@@ -49,7 +44,7 @@ app.post('/generate-zip', async (req, res) => {
                         }
 
                         /* Clean up the environment */
-                        fs.rmSync(envDir, {recursive: true, force: true});
+                        //fs.rmSync(envDir, {recursive: true, force: true});
                     });
                 });
 
@@ -68,27 +63,6 @@ app.post('/generate-zip', async (req, res) => {
         res.status(500).send('Internal Server Error');
     }
 });
-
-/* Helper function to check if a command exists */
-const commandExists = (command) => {
-    return new Promise((resolve) => {
-        exec(`command -v ${command}`, (error) => {
-            resolve(!error);
-        });
-    });
-};
-
-/* Helper function to install a specific version of Python */
-const installPython = (version) => {
-    return new Promise((resolve, reject) => {
-        exec(`apt-get update && apt-get install -y python${version} python${version}-venv`, (error) => {
-            if (error) {
-                return reject(error);
-            }
-            resolve();
-        });
-    });
-};
 
 app.listen(port, () => {
     console.log(`App listening at http://localhost:${port}`);
