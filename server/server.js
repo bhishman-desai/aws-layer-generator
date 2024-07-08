@@ -18,6 +18,7 @@ app.get('/health', (req, res) => {
 app.post('/generate-zip', async (req, res) => {
     const {runtime, packages} = req.body;
     const envDir = `/tmp/env_${Date.now()}`;
+    const zipFilePath = `${envDir}/packages.zip`;
 
     try {
         /* Step 1: Create a virtual environment */
@@ -27,24 +28,24 @@ app.post('/generate-zip', async (req, res) => {
         await execPromise(`${envDir}/bin/pip install ${packages.join(' ')}`);
 
         /* Step 3: Zip the installed packages */
-        const output = fs.createWriteStream(`${envDir}/packages.zip`);
+        const output = fs.createWriteStream(zipFilePath);
         const archive = archiver('zip', {zlib: {level: 9}});
 
         archive.pipe(output);
         archive.directory(`${envDir}/lib`, false);
+
         await archive.finalize();
 
         output.on('close', () => {
-
             /* Step 4: Download zip after successful compression */
-            res.download(`${envDir}/packages.zip`, 'packages.zip', (err) => {
+            res.download(zipFilePath, 'packages.zip', (err) => {
                 if (err) {
                     return res.status(500).send('Error downloading zip file');
                 }
-            });
 
-            /* Step 5: Clean up the environment */
-            // fs.rmSync(envDir, { recursive: true, force: true });
+                /* Step 5: Clean up the environment */
+                fs.rmSync(envDir, {recursive: true, force: true});
+            });
         });
 
         archive.on('error', (err) => {
@@ -52,7 +53,6 @@ app.post('/generate-zip', async (req, res) => {
         });
 
     } catch (err) {
-        console.error(err);
         return res.status(500).send('Internal Server Error');
     }
 });
